@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pixelated Camera Stream</title>
+<style>
+    #canvas {
+        display: block;
+        margin: auto;
+        border: 0px solid ;
+    }
+
+		body{
+			background-image: url("摄像头背景.GIF");
+			background-size: cover;
+		}
+
+        @keyframes moveRight {
+        0% {
+            transform: translateX(0);
+        }
+        100% {
+            transform: translateX(calc(100% - 100vw));
+        }
+    }
+
+    .moving-image {
+        position: absolute;
+        top: 60%;
+        left: 100%;
+        height: 200px;
+        width: 200px;
+        animation: moveRight 25s linear infinite; /* 可以调整时间，5s表示5秒 */
+    }
+
+</style>
+</head>
+<body>
+    <img src="sxtC.GIF" alt="Moving Image" class="moving-image">
+    <img src="塑料膜2.png" width=640px height=480px style="position:absolute;top: 5px;left: 400px;">
+    <img src="SXT S1.GIF" width=150px height=200px style="position:absolute;top: 100px;left: 150px;">
+    <img src="SXT S2.GIF" width=150px height=200px style="position:absolute;top: 100px;left: 1150px;">
+
+
+<video id="videoElement" autoplay style="display: none;"></video>
+<canvas id="canvas" width="2000" height="2000"></canvas>
+
+<script>
+  alert("你在看着你吗？")  
+// 获取视频元素
+var video = document.getElementById("videoElement");
+
+// 检查浏览器是否支持getUserMedia API
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    // 请求访问用户的摄像头
+    navigator.mediaDevices.getUserMedia({ video: true })
+    .then(function(stream) {
+        // 将视频流绑定到video元素上
+        video.srcObject = stream;
+    })
+    .catch(function(error) {
+        console.error('获取用户摄像头失败:', error);
+    });
+} else {
+    console.error('浏览器不支持getUserMedia API');
+}
+
+// 获取Canvas元素
+var canvas = document.getElementById("canvas");
+var ctx = canvas.getContext("2d");
+
+// 当视频元数据加载完成时执行
+video.addEventListener("loadedmetadata", function() {
+    // 设置Canvas尺寸与视频尺寸一致
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+});
+
+// 在视频播放时执行
+video.addEventListener("play", function() {
+    // 定时绘制视频帧
+    setInterval(function() {
+        // 在Canvas上绘制视频帧
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        // 对Canvas上的像素进行处理，实现像素风格效果
+        pixelate(ctx, 0, 0, canvas.width, canvas.height, 10); // 调用像素风格处理函数
+    }, 1000 / 24); // 每秒绘制24帧
+});
+
+// 像素风格处理函数
+function pixelate(ctx, x, y, width, height, size) {
+    // 将Canvas上的像素点进行像素化处理
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(ctx.canvas, x, y, width, height, x, y, width / size, height / size);
+    ctx.drawImage(ctx.canvas, x, y, width / size, height / size, x, y, width, height);
+}
+</script>
+</body>
+</html>
