@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>迷宫</title>
+    <meta
+		name="description"
+		content="about net alert">
+		<link rel="icon"
+		href="茧（页面图标）.jpg">
+    <style>
+
+		body{
+			background-image: url("迷宫背景.GIF");
+			background-size: cover;
+		}
+      .player {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        background-color: green;
+        border-radius: 100%;
+        transform: translate(-50%, -50%);
+      }
+    </style>
+  </head>
+  <body>
+    <div style="display: flex; justify-content: center">
+      <canvas width="400" height="400"></canvas>
+      <div class="player"></div>
+    </div>
+  </body>
+  <script>
+    alert("这个“迷宫”永远也逃不出去")  
+
+    const cvs = document.querySelector('canvas')
+    const player = document.querySelector('.player')
+    const ctx = cvs.getContext('2d')
+    const { width, height, offsetLeft, offsetTop } = cvs
+    const imageData = {}
+    const img = new Image()
+    const base64String =
+      'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzI0IiBoZWlnaHQ9IjMyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InNxdWFyZSI+PHBhdGggZD0iTTIgMmgxNDRNMTYyIDJoMTYwTTIgMThoMzJNNjYgMThoMTZNMTQ2IDE4aDE2TTE5NCAxOGgzMk0yNDIgMThoMzJNMTggMzRoNDhNODIgMzRoMTZNMTMwIDM0aDE2TTE2MiAzNGgzMk0yMTAgMzRoMzJNMjU4IDM0aDMyTTM0IDUwaDE2TTY2IDUwaDE2TTExNCA1MGgzMk0yNDIgNTBoNjRNODIgNjZoMzJNMTk0IDY2aDQ4TTI5MCA2NmgxNk0xOCA4MmgzMk0xNDYgODJoNDhNMjQyIDgyaDQ4TTIgOThoMzJNNTAgOThoMTZNOTggOThoMzJNMTYyIDk4aDgwTTI3NCA5OGgzMk0zNCAxMTRoODBNMTYyIDExNGgxNk0xOTQgMTE0aDMyTTI0MiAxMTRoNDhNMzQgMTMwaDE2TTY2IDEzMGg2NE0xNDYgMTMwaDQ4TTIyNiAxMzBoMzJNMTggMTQ2aDE2TTUwIDE0NmgxNk0xMTQgMTQ2aDE2TTE3OCAxNDZoMzJNMjI2IDE0NmgxNk0yNTggMTQ2aDQ4TTM0IDE2MmgzMk05OCAxNjJoMTZNMTQ2IDE2MmgzMk0xOTQgMTYyaDE2TTMwNiAxNjJoMTZNODIgMTc4aDMyTTEzMCAxNzhoNjRNMjI2IDE3OGgxNk0yNzQgMTc4aDMyTTIgMTk0aDE2TTUwIDE5NGg0OE0xMTQgMTk0aDE2TTE2MiAxOTRoNjRNMjQyIDE5NGgzMk0xOCAyMTBoMzJNODIgMjEwaDQ4TTE2MiAyMTBoNDhNMjI2IDIxMGgxNk0yNTggMjEwaDE2TTIgMjI2aDMyTTUwIDIyNmgxMTJNMTc4IDIyNmgxNk0yMTAgMjI2aDQ4TTI3NCAyMjZoMzJNMzQgMjQyaDE2TTE2MiAyNDJoMTZNMjQyIDI0Mmg0OE0zMDYgMjQyaDE2TTE4IDI1OGgxNk01MCAyNThoODBNMTc4IDI1OGg4ME0yOTAgMjU4aDE2TTgyIDI3NGgzMk0xMzAgMjc0aDgwTTI3NCAyNzRoMTZNMiAyOTBoMTZNNTAgMjkwaDMyTTk4IDI5MGg0OE0xOTQgMjkwaDE2TTIyNiAyOTBoMTZNMjU4IDI5MGgxNk0zMDYgMjkwaDE2TTE4IDMwNmgxNk04MiAzMDZoNDhNMTYyIDMwNmgzMk0yNDIgMzA2aDE2TTI3NCAzMDZoMzJNMiAzMjJoMTYwTTE3OCAzMjJoMTQ0TTIgMnYzMjBNMTggMzR2NDhNMTggMTE0djgwTTE4IDIyNnY0OE0zNCA1MHYxNk0zNCA5OHYzMk0zNCAxNjJ2NDhNMzQgMjU4djE2TTM0IDI5MHYzMk01MCAydjMyTTUwIDUwdjQ4TTUwIDEzMHYzMk01MCAxNzh2MTZNNTAgMjEwdjMyTTUwIDI1OHYxNk01MCAyOTB2MTZNNjYgMTh2NDhNNjYgODJ2MTZNNjYgMTYydjE2TTY2IDE5NHYzMk02NiAyNDJ2NDhNNjYgMzA2djE2TTgyIDgydjMyTTgyIDEzMHY0OE04MiAyMjZ2MTZNODIgMjkwdjE2TTk4IDJ2ODBNOTggMTQ2djE2TTk4IDE5NHYxNk05OCAyNDJ2MTZNMTE0IDE4djMyTTExNCA2NnYxNk0xMTQgMTYydjMyTTExNCAyMjZ2MTZNMTE0IDI3NHYxNk0xMzAgMnYzMk0xMzAgNTB2MTI4TTEzMCAyNDJ2MzJNMTQ2IDY2djY0TTE0NiAxNDZ2MTZNMTQ2IDE3OHY2NE0xNDYgMjU4djE2TTE0NiAyOTB2MzJNMTYyIDE4djQ4TTE2MiA5OHYxNk0xNjIgMTMwdjMyTTE2MiAxOTR2MTZNMTYyIDIyNnYzMk0xNjIgMjc0djMyTTE3OCAydjMyTTE3OCA1MHYzMk0xNzggMTYydjE2TTE3OCAyMTB2MTZNMTc4IDI1OHYxNk0xNzggMjkwdjMyTTE5NCAzNHYzMk0xOTQgMTQ2djE2TTE5NCAyMjZ2MzJNMjEwIDM0djE2TTIxMCA2NnYzMk0yMTAgMTE0djMyTTIxMCAxNjJ2MzJNMjEwIDIxMHYzMk0yMTAgMjkwdjMyTTIyNiAxOHYxNk0yMjYgNTB2MzJNMjI2IDExNHYxNk0yMjYgMTQ2djE2TTIyNiAyNDJ2MzJNMjI2IDMwNnYxNk0yNDIgMzR2MTZNMjQyIDgydjMyTTI0MiAxNDZ2NjRNMjQyIDIyNnYxNk0yNDIgMjc0djMyTTI1OCAxOHYxNk0yNTggNTB2MTZNMjU4IDk4djE2TTI1OCAxMzB2NDhNMjU4IDIxMHYxNk0yNTggMjU4djQ4TTI3NCA1MHY0OE0yNzQgMTMwdjE2TTI3NCAxNjJ2MzJNMjc0IDI1OHYxNk0yNzQgMzA2djE2TTI5MCAydjMyTTI5MCAxMTR2MTZNMjkwIDE0NnYzMk0yOTAgMTk0djMyTTI5MCAyNDJ2MTZNMjkwIDI3NHYzMk0zMDYgMTh2MzJNMzA2IDY2djQ4TTMwNiAxMzB2MTZNMzA2IDE3OHYxNk0zMDYgMjEwdjMyTTMwNiAyNzR2MTZNMzIyIDJ2MzIwIi8+PC9nPjwvc3ZnPg=='
+    img.src = base64String
+    img.onload = () => {
+      ctx.fillStyle = '#ffffff'
+      ctx.fillRect(0, 0, width, height)
+      ctx.drawImage(img, 0, 0, width, height)
+      const data = ctx.getImageData(0, 0, width, height).data
+      let x = 0
+      for (let i = 0; i < data.length; i += 4) {
+        if (data[i] !== 255 && data[i + 1] !== 255 && data[i + 2] !== 255) {
+          imageData[(x % width) + '-' + Math.ceil(x / width)] = true
+        }
+        x++
+      }
+    }
+    cvs.addEventListener('click', event => {
+      const rect = cvs.getBoundingClientRect() // 获取 canvas 元素相对于视口的位置信息
+      const x = event.clientX - rect.left // 获取点击位置相对于 canvas 左上角的 x 坐标
+      const y = event.clientY - rect.top // 获取点击位置相对于 canvas 左上角的 y 坐标
+      console.log('点击坐标:', x, y)
+ 
+      // 判断点击位置是否在指定范围内
+      if (y >= 180 && y <= 220 && x >= 280 && x <= 300) {
+        // 在控制台打印点击坐标
+        console.log('点击坐标:', x, y)
+        // / 在弹框中显示坐标
+        alert(`点击坐标: (${x}, ${y})`)
+      }
+      // 这里可以根据需要执行特定的操作，例如判断点击位置是否在迷宫内，或者处理其他逻辑
+    })
+    const printCoordinates = (x, y) => {
+      if (y >= 30 && y <= 50 && x >= 140 && x <= 150) {
+        console.log('点击坐标:', x, y)
+
+        var url = 'https://jia123567.github.io/Yjia/'
+        var winOptions = 'width=200px,height=200px,left=300px,top=100px' // 修改了参数顺序和单位
+        window.open(url, 'PopupWindow', winOptions)
+      }
+      if (y >= 180 && y <= 220 && x >= 280 && x <= 300) {
+        var url = 'https://jia123567.github.io/cocoons/'
+        var winOptions = 'width=200px,height=200px,left=300px,top=100px' // 修改了参数顺序和单位
+        window.open(url, 'PopupWindow', winOptions)
+      }
+      if (y >= 60 && y <= 90 && x >= 40 && x <= 50) {
+        var url = 'https://jia123567.github.io/shiping/'
+        var winOptions = 'width=200px,height=200px,left=300px,top=100px' // 修改了参数顺序和单位
+        window.open(url, 'PopupWindow', winOptions)
+      }
+    }
+
+    const keys = []
+    document.addEventListener('keydown', v => {
+      if (v.key.match(/^(w|a|s|d)$/i)) {
+        !keys.includes(v.key) && keys.push(v.key)
+      }
+    })
+    document.addEventListener('keyup', v => {
+      keys.splice(keys.indexOf(v.key), 1)
+    })
+    const runing = () => {
+      if (keys.length > 0) {
+        let step = 1
+        let top = player.offsetTop
+        let left = player.offsetLeft
+        let key = keys[keys.length - 1]
+        if (
+          key === 'w' &&
+          !imageData[`${left - offsetLeft}-${top - step - offsetTop}`]
+        ) {
+          player.style.top = top - step + 'px'
+          printCoordinates(left - offsetLeft, top - step - offsetTop)
+        } else if (
+          key === 's' &&
+          !imageData[`${left - offsetLeft}-${top + step - offsetTop}`]
+        ) {
+          player.style.top = top + step + 'px'
+          printCoordinates(left - offsetLeft, top + step - offsetTop)
+        } else if (
+          key === 'a' &&
+          !imageData[`${left - step - offsetLeft}-${top - offsetTop}`]
+        ) {
+          player.style.left = left - step + 'px'
+          printCoordinates(left - step - offsetLeft, top - offsetTop)
+        } else if (
+          key === 'd' &&
+          !imageData[`${left + step - offsetLeft}-${top - offsetTop}`]
+        ) {
+          player.style.left = left + step + 'px'
+          printCoordinates(left + step - offsetLeft, top - offsetTop)
+        }
+      }
+      requestAnimationFrame(runing)
+    }
+    runing()
+  </script>
+</html>
